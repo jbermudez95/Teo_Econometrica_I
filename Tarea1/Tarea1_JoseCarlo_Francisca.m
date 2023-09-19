@@ -6,7 +6,7 @@ clc;
 clear;
 close all;
 
-%% INCISO 1: DISTRIBUCIÓN EXACTA Y SIMULACIÓN MONTECARLO
+%% EJERCICIO 1: DISTRIBUCIÓN EXACTA Y SIMULACIÓN MONTECARLO
 
 rng('default') % Para reproducibilidad de datos aleatorios
 n = 1e3;

@@ -1,6 +1,6 @@
 %% TAREA 1: TEORÍA ECONOMÉTRICA I
-% Jose Carlo Bermúdez 
-% jcbermudez@uc.cl
+% Jose Carlo Bermúdez y Francisca Villegas
+% jcbermudez@uc.cl; favillegas@uc.cl
 
 clc; 
 clear;

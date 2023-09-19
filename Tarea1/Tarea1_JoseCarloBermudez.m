@@ -6,124 +6,59 @@ clc;
 clear;
 close all;
 
-rng('default')  % Para reproducibilidad de los números aleatorios
+
 
 %% INCISO 1: Distribución exacta y Simulación Montecarlo
 
-%n = 100;
-%x_uniforme = rand(n,1);
+n = 1e3;
 
-%cdf_exacta = NaN(n,1);
-
-%for i = 1:n
-    cdf_exacta(i,1) = cdf_exacta_uniforme(x_uniforme(i,1));
-%end
+dominio_generado = linspace(-2,2,n);
+valor = cdf_exacta(dominio_generado, n);
 
 
-%%% DEFINICIÓN DE FUNCIONES
+figure(1)
+plot(dominio_generado, valor)
+axis([-3 3 -0.5 1.5])
 
-%function cdf_uniforme = cdf_exacta_uniforme(x)
-    %if x < 0
-       % cdf_uniforme = 0;
-    %elseif x > 1
-        %cdf_uniforme = 1;
-    %else
-        %cdf_uniforme = x;
-    %end
-%end
+% Simulaciones %
 
-clc; clear all;
+n = [1e3, 1e5, 1e7];
+arreglo_0_1 = linspace(0,1,50);
+valores_cdf = cdf_exacta(arreglo_0_1, 50);
 
-% 1. Generar variable aleatoria con distribución U[0,1]
-n = 100;
-x = rand(n, 1);
 
-% 2. Graficar la Distribución Exacta
-x_values = linspace(0, 1, 1000); % Valores de x entre 0 y 1
-cdf_values = cdf_exacta(x_values); % Calcula la CDF exacta
+sim1 = rand(n(1),1);
 
-figure;
 
-subplot(1, 3, 1);
-plot(x_values, cdf_values, 'b');
-title('Distribución Exacta');
-xlabel('x');
-ylabel('CDF');
+figure(2)
+histogram(sim1,'Normalization','cdf', NumBins = 50)
+hold on
+plot(arreglo_0_1, valores_cdf)
+legend()
 
-% 3. Simulación Montecarlo
-num_simulaciones = [1000, 100000, 10000000];
 
-for i = 1:length(num_simulaciones)
-    N = num_simulaciones(i);
-    samples = rand(N, 1); % Generar N muestras aleatorias de U[0,1]
-    ecdf = cumsum(samples) / N; % CDF empírica
-
-    % 4. Graficar la Distribución Montecarlo
-    subplot(1, 3, i + 1);
-    plot(x_values, cdf_values, 'b', x_values, ecdf, 'r');
-    title(['Montecarlo (', num2str(N), ' simulaciones)']);
-    xlabel('x');
-    ylabel('CDF');
-    legend('Exacta', 'Montecarlo', 'Location', 'northwest');
-end
-
-%% INCISO 3: DISTRIBUCIÓN DE KERNEL
-
-% Simulación para un VA con distribución exponencial (λ=3)
-lambda = 3;
-x_exp_100  = exprnd(lambda,100,1);
-x_exp_1000 = exprnd(lambda,1000,1);
-
-smooth = {'normal','box','triangle','epanechnikov'};
-
-for i = 1:length(smooth)
-    [pdf100{i},x100{i}]   = ksdensity(x_exp_100,'Kernel',smooth{i});
-    [pdf1000{i},x1000{i}] = ksdensity(x_exp_1000,'Kernel',smooth{i});
-end
-
-% Gráficas
-lstyle = {'-','-.','--','-..'};
-lcolor = {'c','g','r','b'};
-tx  = {'Interpreter','Latex','FontSize', 10};
-tx1 = {'Interpreter','Latex','FontSize', 7};
+sim2 = rand(n(2),1);
 
 figure(3)
-histogram(x_exp_100,'Normalization','pdf','FaceAlpha',0.2,'BinWidth',1)
-
+histogram(sim2,'Normalization','cdf', NumBins = 50)
 hold on
-for i = 1:length(smooth)
-    plot(x100{1,i},pdf100{1,i},lstyle{i},'LineWidth',2, 'Color',lcolor{i})
-end
-hold off
+plot(arreglo_0_1, valores_cdf)
+legend()
 
-legend('Densidad Real','Kernel Normal','Kernel Box','Kernel Triangle','Kernel Epanechnikov','Location','northeast', tx1{:});
-legend('boxoff')
-xlabel('$x_{i}$',tx1{:})
-ylabel('PDF $(x_{i})$',tx1{:})
-sgtitle('Simulacion para $n=100$',tx{:})
-exportgraphics(figure(3),'inciso_c100.pdf')
+
+sim3 = rand(n(3),1);
 
 figure(4)
-histogram(x_exp_1000,'Normalization','pdf','FaceAlpha',0.2,'BinWidth',1)
-
+histogram(sim3,'Normalization','cdf', NumBins = 50)
 hold on
-for i = 1:length(smooth)
-    plot(x1000{1,i},pdf1000{1,i},lstyle{i},'LineWidth',2, 'Color',lcolor{i})
-end
-hold off
+plot(arreglo_0_1, valores_cdf)
+legend()
 
-legend('Densidad Real','Kernel Normal','Kernel Box','Kernel Triangle','Kernel Epanechnikov','Location','northeast', tx1{:});
-legend('boxoff')
-xlabel('$x_{i}$',tx1{:})
-ylabel('PDF $(x_{i})$',tx1{:})
-sgtitle('Simulacion para $n=1,000$',tx{:})
-exportgraphics(figure(4),'inciso_c1000.pdf')
 
-% 5. Función de Distribución Acumulativa (CDF) Exacta
-function cdf = cdf_exacta(x)
-    cdf = x .* (x >= 0 & x <= 1);
-end
-%% % Parte 1
+%histogram(B10_5,'Normalization','cdf', NumBins = 100)
+%% INCISO 2: Distribución exacta y Simulación Montecarlo
+
+%Parte 1
 N = [1, 10, 100, 1000];
 S = 10000;
 
@@ -274,12 +209,12 @@ figure;
 
 subplot(2, 2, 1);
 histogram(zeros(S), 'Normalization', 'pdf');
-axis([0 0.2 0 60]);
+axis([0 0.2 0 2]);
 title('Distribución de la varianza muestral para Uniforme (n=1)');
 
 subplot(2, 2, 2);
 histogram(var_unif(1, :), 'Normalization', 'pdf');
-axis([0 0.2 0 60]);
+axis([0 0.2 0 20]);
 title('Distribución de la varianza muestral para Uniforme (n=10)');
 
 subplot(2, 2, 3);
@@ -289,8 +224,9 @@ title('Distribución de la varianza muestral para Uniforme (n=100)');
 
 subplot(2, 2, 4);
 histogram(var_unif(3, :), 'Normalization', 'pdf');
-axis([0 0.2 0 60]);
-title('Distribución de la varianza muestral para Uniforme (n=1000)');}
+axis([0 0.2 0 160]);
+title('Distribución de la varianza muestral para Uniforme (n=1000)');
+
 
 %% 
 

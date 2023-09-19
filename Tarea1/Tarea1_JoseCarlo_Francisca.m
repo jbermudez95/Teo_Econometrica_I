@@ -33,8 +33,7 @@ figure(2)
 histogram(sim1,'Normalization','cdf', NumBins = 50)
 hold on
 plot(arreglo_0_1, valores_cdf)
-legend()
-
+legend('Simulado', 'CDF exacta','Location','northwest')
 
 sim2 = rand(n(2),1);
 
@@ -42,7 +41,7 @@ figure(3)
 histogram(sim2,'Normalization','cdf', NumBins = 50)
 hold on
 plot(arreglo_0_1, valores_cdf)
-legend()
+legend('Simulado', 'CDF exacta','Location','northwest')
 
 
 sim3 = rand(n(3),1);
@@ -51,7 +50,7 @@ figure(4)
 histogram(sim3,'Normalization','cdf', NumBins = 50)
 hold on
 plot(arreglo_0_1, valores_cdf)
-legend()
+legend('Simulado', 'CDF exacta','Location','northwest')
 
 
 %% EJERCICIO 2: DISTRIBUCIÓN ASINTÓTICA DE LA MEDIA Y VARIANZA MUESTRAL

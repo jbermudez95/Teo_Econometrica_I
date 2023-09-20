@@ -1,3 +1,4 @@
+%% 
 %% TAREA 1: TEORÍA ECONOMÉTRICA I
 % Jose Carlo Bermúdez y Francisca Villegas
 % jcbermudez@uc.cl; favillegas@uc.cl
@@ -8,33 +9,36 @@ close all;
 
 %% EJERCICIO 1: DISTRIBUCIÓN EXACTA Y SIMULACIÓN MONTECARLO
 
+% Generación del dominio y cálculo de la CDF exacta para n=1000
 rng('default') % Para reproducibilidad de datos aleatorios
 n = 1e3;
 
 dominio_generado = linspace(-2,2,n);
 valor = cdf_exacta(dominio_generado, n);
 
-
+% Gráfica de la CDF exacta
 figure(1)
 plot(dominio_generado, valor)
 axis([-3 3 -0.5 1.5])
+exportgraphics(figure(1),'cdf exacta.pdf')
 
-% Simulaciones %
+% Simulaciones para diferentes valores de n
 
 n = [1e3, 1e5, 1e7];
 arreglo_0_1 = linspace(0,1,50);
 valores_cdf = cdf_exacta(arreglo_0_1, 50);
 
-
+% Simulación 1 con n=1000
 sim1 = rand(n(1),1);
-
 
 figure(2)
 histogram(sim1,'Normalization','cdf', NumBins = 50)
 hold on
 plot(arreglo_0_1, valores_cdf)
 legend('Simulado', 'CDF exacta','Location','northwest')
+exportgraphics(figure(2),'Simulación Montecarlo (1000 simulaciones).pdf')
 
+% Simulación 2 con n=100000
 sim2 = rand(n(2),1);
 
 figure(3)
@@ -42,8 +46,9 @@ histogram(sim2,'Normalization','cdf', NumBins = 50)
 hold on
 plot(arreglo_0_1, valores_cdf)
 legend('Simulado', 'CDF exacta','Location','northwest')
+exportgraphics(figure(3),'Simulación Montecarlo (100000 simulaciones).pdf')
 
-
+% Simulación 3 con n=10000000
 sim3 = rand(n(3),1);
 
 figure(4)
@@ -51,95 +56,135 @@ histogram(sim3,'Normalization','cdf', NumBins = 50)
 hold on
 plot(arreglo_0_1, valores_cdf)
 legend('Simulado', 'CDF exacta','Location','northwest')
-
+exportgraphics(figure(4),'Simulación Montecarlo (10000000 simulaciones).pdf')
 
 %% EJERCICIO 2: DISTRIBUCIÓN ASINTÓTICA DE LA MEDIA Y VARIANZA MUESTRAL
 
 clc; clear all;
 rng('default') % Para reproducibilidad de datos aleatorios
 
-% Parte 1
-N = [1, 10, 100, 1000];
-S = 10000;
+%Parte 1
 
-% Inicializar matrices para almacenar resultados
-means_unif = zeros(length(N), S);
-means_exp = zeros(length(N), S);
-means_bern = zeros(length(N) - 1, S);  % Excluir N=1 para Bernoulli
-var_unif = zeros(length(N) - 1, S);   % Excluir N=1 para la varianza
-var_exp = zeros(length(N) - 1, S);    % Excluir N=1 para la varianza
-var_bern = zeros(length(N) - 1, S);   % Excluir N=1 para la varianza
+% Definición de los tamaños de muestra
+n_values = [0, 1, 2, 3];
+samples = 10.^n_values;
 
-for i = 1:length(N)
-    % Generar muestras para cada distribución y tamaño de muestra
-    unif_samples = rand(N(i), S);
-    exp_samples = exprnd(3, N(i), S);
-    if i > 1
-        bern_samples = binornd(1, 0.7, N(i), S);
-    end
+% Inicialización de celdas para almacenar las muestras generadas
+unif = cell(length(n_values), 1);
+exp = cell(length(n_values), 1);
+bern = cell(length(n_values), 1);
+
+% Bucle para generar las muestras para diferentes tamaños de muestra
+for i = 1:length(n_values)
+    % Generación de muestras aleatorias de distribución uniforme
+    unif{i} = rand(samples(i), 1);
     
-    % Calcular la media muestral y la varianza muestral
-    means_unif(i, :) = mean(unif_samples);
-    means_exp(i, :) = mean(exp_samples);
-    if i > 1
-        means_bern(i-1, :) = mean(bern_samples);
-        var_unif(i-1, :) = var(unif_samples);
-        var_exp(i-1, :) = var(exp_samples);
-        var_bern(i-1, :) = var(bern_samples);
-    end
+    % Generación de muestras aleatorias de distribución exponencial
+    exp{i} = exprnd(3, samples(i), 1);
+    
+    % Generación de muestras aleatorias de distribución binomial
+    bern{i} = binornd(1, 0.7, samples(i), 1);
 end
 
-% Parte 3
-figure;
 
-% Gráfico de la media muestral para uniforme
-subplot(3, 2, 1);
-histogram(means_unif(1, :), 'Normalization', 'pdf');
-title('Distribución de la media muestral para Uniforme (n=1)');
+%Parte 2
+S = 10^4;
+n_values = [0, 1, 2, 3];
+results = cell(3, 4); % Para almacenar resultados uniformes, exponenciales y de Bernoulli.
 
-subplot(3, 2, 3);
-histogram(means_unif(2, :), 'Normalization', 'pdf');
-title('Distribución de la media muestral para Uniforme (n=10)');
+for i = 1:length(n_values)
+    n = 10^n_values(i);
+    
+    % uniforme
+    if n == 0
+        results{1, i} = rand(n, S);
+    else
+        results{1, i} = mean(rand(n, S));
+    end
+    
+    % exponencial
+    results{2, i} = mean(exprnd(3, n, S));
+    
+    % bernoulli
+    results{3, i} = mean(binornd(1, 0.7, n, S));
+end
 
-subplot(3, 2, 5);
-histogram(means_unif(3, :), 'Normalization', 'pdf');
-title('Distribución de la media muestral para Uniforme (n=100)');
+%Parte 3
 
-subplot(3, 2, 2);
-histogram(means_exp(1, :), 'Normalization', 'pdf');
-title('Distribución de la media muestral para Exponencial (n=1)');
+% Variables aleatorias
+variables_aleatorias = {'Uniforme', 'Exponencial', 'Bernoulli'};
 
-subplot(3, 2, 4);
-histogram(means_exp(2, :), 'Normalization', 'pdf');
-title('Distribución de la media muestral para Exponencial (n=10)');
+% Bucle para cada VA
+for va = 1:length(variables_aleatorias)
+    figure;
+    hold on;
+    
+    for i = 1:length(n_values)
+        n = 10^n_values(i);
+        
+        if n == 0 && va == 3 % Ignorar el caso N=1 para Bernoulli
+            continue;
+        end
+        
+        % Calcular la media muestral
+        if va == 1 % Uniforme
+            if n == 0
+                muestras = results{1, i};
+            else
+                muestras = results{1, i};
+            end
+        elseif va == 2 % Exponencial
+            muestras = results{2, i};
+        elseif va == 3 % Bernoulli
+            muestras = results{3, i};
+        end
+        
+        % Graficar la pdf/pmf
+        subplot(2, 2, i);
+        histogram(muestras, 'Normalization', 'probability', 'EdgeColor', 'w');
+        title(['N = 10^' num2str(n_values(i))]);
+        xlabel('Media Muestral');
+        ylabel('Probabilidad');
+    end
+    
+    sgtitle(['PDF/PMF de la Media Muestral (' variables_aleatorias{va} ')']);
+    hold off;
+end
 
-subplot(3, 2, 6);
-histogram(means_exp(3, :), 'Normalization', 'pdf');
-title('Distribución de la media muestral para Exponencial (n=100)');
+%Parte 6
 
-% Parte 6
+% Tamaño de la muestra S
+S = 10^4;
+
+% Calcular varianzas muestrales para diferentes tamaños de muestra
+var_mc_unif_10_1 = var(rand(10^1, S));
+var_mc_unif_10_2 = var(rand(10^2, S));
+var_mc_unif_10_3 = var(rand(10^3, S));
+
+% Crear subplots para los histogramas
 figure;
 
 subplot(2, 2, 1);
 histogram(zeros(S), 'Normalization', 'pdf');
+title('Distribución de la Varianza Muestral con n=1');
 axis([0 0.2 0 2]);
-title('Distribución de la varianza muestral para Uniforme (n=1)');
 
 subplot(2, 2, 2);
-histogram(var_unif(1, :), 'Normalization', 'pdf');
+histogram(var_mc_unif_10_1, 'Normalization', 'pdf');
+title('Distribución de la Varianza Muestral con n=10');
 axis([0 0.2 0 20]);
-title('Distribución de la varianza muestral para Uniforme (n=10)');
 
 subplot(2, 2, 3);
-histogram(var_unif(2, :), 'Normalization', 'pdf');
+histogram(var_mc_unif_10_2, 'Normalization', 'pdf');
+title('Distribución de la Varianza Muestral con n=100');
 axis([0 0.2 0 60]);
-title('Distribución de la varianza muestral para Uniforme (n=100)');
 
 subplot(2, 2, 4);
-histogram(var_unif(3, :), 'Normalization', 'pdf');
+histogram(var_mc_unif_10_3, 'Normalization', 'pdf');
+title('Distribución de la Varianza Muestral con n=1,000');
 axis([0 0.2 0 160]);
-title('Distribución de la varianza muestral para Uniforme (n=1000)');
 
+sgtitle('Distribución de la Varianza Muestral (Variable Aleatoria Uniforme)');
 
 %% EJERCICIO 3: DISTRIBUCIÓN DE KERNEL
 

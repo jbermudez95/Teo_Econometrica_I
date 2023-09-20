@@ -1,4 +1,3 @@
-%% 
 %% TAREA 1: TEORÍA ECONOMÉTRICA I
 % Jose Carlo Bermúdez y Francisca Villegas
 % jcbermudez@uc.cl; favillegas@uc.cl
@@ -7,7 +6,9 @@ clc;
 clear;
 close all;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% EJERCICIO 1: DISTRIBUCIÓN EXACTA Y SIMULACIÓN MONTECARLO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Generación del dominio y cálculo de la CDF exacta para n=1000
 rng('default') % Para reproducibilidad de datos aleatorios
@@ -58,7 +59,11 @@ plot(arreglo_0_1, valores_cdf)
 legend('Simulado', 'CDF exacta','Location','northwest')
 exportgraphics(figure(4),'Simulación Montecarlo (10000000 simulaciones).pdf')
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% EJERCICIO 2: DISTRIBUCIÓN ASINTÓTICA DE LA MEDIA Y VARIANZA MUESTRAL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clc; clear all;
 rng('default') % Para reproducibilidad de datos aleatorios
@@ -186,7 +191,11 @@ axis([0 0.2 0 160]);
 
 sgtitle('Distribución de la Varianza Muestral (Variable Aleatoria Uniforme)');
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% EJERCICIO 3: DISTRIBUCIÓN DE KERNEL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clc; clear; close all;
 rng('default')
@@ -241,7 +250,11 @@ ylabel('PDF $(x_{i})$',tx1{:})
 sgtitle('Simulacion para $n=1,000$',tx{:})
 exportgraphics(figure(4),'inciso_c1000.pdf')
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% EJERCICIO 4: ESTIMACIÓN POR MCO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clc; clear; close all;
 rng('default')

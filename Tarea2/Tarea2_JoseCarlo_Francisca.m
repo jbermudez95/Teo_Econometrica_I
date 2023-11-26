@@ -31,49 +31,51 @@ beta_ols = (X'*X)^(-1)*(X'*lnY);
 % Prealocación: matriz de 4 valores iniciales distintos
 beta0      = NaN(size(X,2),4);
 beta0(:,1) = beta_ols(:,1);
-beta0(:,2) = beta_ols(:,1) - 1;
-beta0(:,3) = beta_ols(:,1) + 1;
+beta0(:,2) = beta_ols(:,1) - 0.05;
+beta0(:,3) = beta_ols(:,1) + 0.05;
 beta0(:,4) = zeros(size(beta0,1),1);
 
 % Preámbulo para la iteración
 beta_hat = NaN(size(X,2),4);
+converge = NaN(size(beta0,1),1);
+iter     = NaN(size(beta0,1),1);
 N        = size(Y,1);
 error    = 10^-5;
-i        = 0;
 
 % Desarrollo del Método Newton-Rapson
 for j = 1:size(beta0,1)
-    tic
+    
     beta_hat(:,j) = beta0(:,j);
-    b = beta_hat(:,j)';
+    i = 0;
 
+    tic
     while 1
         % Jacobiano
-        aux_J = NaN(size(beta_hat,1),N);
+        aux_J = NaN(size(beta_hat,1), 1, N);
         for k = 1:N
-            aux_J(:,k) = jacobiano(b, X(k,:), Y(k,1));
+            aux_J(:,:,k) = jacobiano(beta_hat(:,j)', X(k,:), Y(k,1));
         end
-        score = sum(aux_J,2);
+        score = sum(aux_J,3);
 
         % Hessiano
-        aux_H = NaN(N,1);
+        aux_H = NaN(size(beta_hat,1), size(beta_hat,1), N);
         for k = 1:N
-            aux_H(k,1) = hessiano(b, X(k,:));
+            aux_H(:,:,k) = hessiano(beta_hat(:,j)', X(k,:));
         end
-        H = sum(aux_H)^(-1);
+        H = sum(aux_H,3)^(-1);
 
-        beta_hat(:,j) = b' - (H*score);
+        beta_hat(:,j) = beta_hat(:,j) - (H*score);
         dif_beta      = abs(H*score);
         
         if dif_beta < error
             break 
         end
+        i = i + 1;
     end
 
-    toc
-    time = toc;
-    i = i + 1;
-    disp(['Convergencia alcanzada en ', num2str(time), ' segundos y ', num2str(i), ' iteraciones.']);
+    converge(j,1) = toc;
+    iter(j,1)     = i;
+    disp(['Convergencia alcanzada en ', num2str(converge(j,1)), ' segundos y ', num2str(iter(j,1)), ' iteraciones.']);
 end
 
 

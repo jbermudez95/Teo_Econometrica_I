@@ -3,5 +3,5 @@ function [hessian] = hessiano(beta,x)
 % de la i-esima fila de la matriz de variables independientes "x_i" para
 % evaluar la segunda derivada de la log-likelihood
 
-hessian = exp(x'*beta)*(x*x');
+hessian = -exp(beta*x')*(x'*x);
 end

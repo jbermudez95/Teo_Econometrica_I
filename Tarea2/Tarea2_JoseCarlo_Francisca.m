@@ -1,10 +1,14 @@
 %% TAREA 2: TEORÍA ECONOMÉTRICA I
-% Jose Carlo Bermúdez y Francisca Villegas
-% jcbermudez@uc.cl; favillegas@uc.cl
+% Jose Carlo Bermúdez: jcbermudez@uc.cl 
+% Francisca Villegas: favillegas@uc.cl
 
 clc; 
 clear;
 close all;
+
+% Detalles para los gráficos
+tx  = {'Interpreter','Latex','FontSize', 14};
+tx1 = {'Interpreter','Latex','FontSize', 12};
 
 %% 1. PREAMBULO
 
@@ -79,24 +83,115 @@ for j = 1:size(beta0,1)
 end
 
 
-%% 3. ESTIMACIÓN DE INTERVALOS DE CONFIANZA
+%% 3. INTERVALOS DE CONFIANZA: BOOTSTRAP NO PARAMÉTRICO
+
+% Prealocación 
+N_simul        = 1000;
+beta_aux       = NaN(size(beta0,1), N_simul);
+beta_aux(:,1)  = beta_ols(:,1);
+beta_bootstrap = NaN(size(beta0,1), N_simul);
+data_bootstrap = [datos.numbil0, ones(size(datos,1),1), datos.lngdppc, datos.lnpop, datos.gattwto08];
+
+% Bootstrapping
+for j = 1:N_simul
+
+    % Remuestreo con remplazo 
+    muestra_b = datasample(data_bootstrap, N);
+    Y_b       = muestra_b(:,1);
+    X_b       = muestra_b(:,2:end);
+
+    i = 1;
+    while 1
+        % Jacobiano
+        aux_J_b = NaN(size(beta_aux,1), 1, N);
+        for k = 1:N
+            aux_J_b(:,:,k) = jacobiano(beta_aux(:,i)', X_b(k,:), Y_b(k,1));
+        end
+        score_b = sum(aux_J_b,3);
+
+        % Hessiano
+        aux_H_b = NaN(size(beta_aux,1), size(beta_aux,1), N);
+        for k = 1:N
+            aux_H_b(:,:,k) = hessiano(beta_aux(:,i)', X_b(k,:));
+        end
+        H_b = sum(aux_H_b,3)^(-1);
+
+        beta_aux(:,i+1) = beta_aux(:,i) - (H_b*score_b);
+        dif_beta_b      = abs(H_b*score_b);
+        
+        if dif_beta_b < error
+            break 
+        end
+        i = i + 1;
+    end
+
+    beta_bootstrap(:,j) = beta_aux(:,i);
+end
+
+% Calculamos los IC mediante el método de Hall
+beta_test = beta_bootstrap - repmat(beta_hat(:,1), 1, N_simul);
 
 
+% Distribución para Beta 0
+beta0_bootstrap = sort(beta_test(1,:));
+beta0_low       = beta_hat(1,1) - beta0_bootstrap(975);
+beta0_up        = beta_hat(1,1) - beta0_bootstrap(25);
+
+figure(1)
+histogram(beta_bootstrap(1, :),'FaceColor','b','EdgeColor','none','FaceAlpha',0.2)
+title('Boostrapping para $\hat{\beta}_0$',tx{:})
+xline(beta_hat(1,1),'--r','$\hat{\beta}_0$', tx1{:},'LabelOrientation','horizontal')
+xline(beta0_low,'--b','$\hat{\beta}_0^{1-\frac{\alpha}{2}}$', tx1{:},'LabelOrientation','horizontal')
+xline(beta0_up,'--b','$\hat{\beta}_0^{\frac{\alpha}{2}}$', tx1{:},'LabelOrientation','horizontal')
+legend('off')
+ylabel('Distribucion',tx1{:})
+exportgraphics(figure(1),'beta0_bootstrap.pdf')
 
 
+% Distribución para Beta 1
+beta1_bootstrap = sort(beta_test(2,:));
+beta1_low       = beta_hat(2,1) - beta1_bootstrap(975);
+beta1_up        = beta_hat(2,1) - beta1_bootstrap(25);
+
+figure(2)
+histogram(beta_bootstrap(2, :),'FaceColor','b','EdgeColor','none','FaceAlpha',0.2)
+title('Boostrapping para $\hat{\beta}_1$',tx{:})
+xline(beta_hat(2,1),'--r','$\hat{\beta}_1$', tx1{:},'LabelOrientation','horizontal')
+xline(beta1_low,'--b','$\hat{\beta}_1^{1-\frac{\alpha}{2}}$', tx1{:},'LabelOrientation','horizontal')
+xline(beta1_up,'--b','$\hat{\beta}_1^{\frac{\alpha}{2}}$', tx1{:},'LabelOrientation','horizontal')
+legend('off')
+ylabel('Distribucion',tx1{:})
+exportgraphics(figure(2),'beta1_bootstrap.pdf')
 
 
+% Distribución para Beta 2
+beta2_bootstrap = sort(beta_test(3,:));
+beta2_low       = beta_hat(3,1) - beta2_bootstrap(975);
+beta2_up        = beta_hat(3,1) - beta2_bootstrap(25);
+
+figure(3)
+histogram(beta_bootstrap(3, :),'FaceColor','b','EdgeColor','none','FaceAlpha',0.2)
+title('Boostrapping para $\hat{\beta}_2$',tx{:})
+xline(beta_hat(3,1),'--r','$\hat{\beta}_2$', tx1{:},'LabelOrientation','horizontal')
+xline(beta2_low,'--b','$\hat{\beta}_2^{1-\frac{\alpha}{2}}$', tx1{:},'LabelOrientation','horizontal')
+xline(beta2_up,'--b','$\hat{\beta}_2^{\frac{\alpha}{2}}$', tx1{:},'LabelOrientation','horizontal')
+legend('off')
+ylabel('Distribucion',tx1{:})
+exportgraphics(figure(3),'beta2_bootstrap.pdf')
 
 
+% Distribución para Beta 3
+beta3_bootstrap = sort(beta_test(4,:));
+beta3_low       = beta_hat(4,1) - beta3_bootstrap(975);
+beta3_up        = beta_hat(4,1) - beta3_bootstrap(25);
 
-
-
-
-
-
-
-
-
-
-
+figure(4)
+histogram(beta_bootstrap(4, :),'FaceColor','b','EdgeColor','none','FaceAlpha',0.2)
+title('Boostrapping para $\hat{\beta}_3$',tx{:})
+xline(beta_hat(4,1),'--r','$\hat{\beta}_3$', tx1{:},'LabelOrientation','horizontal')
+xline(beta3_low,'--b','$\hat{\beta}_3^{1-\frac{\alpha}{2}}$', tx1{:},'LabelOrientation','horizontal')
+xline(beta3_up,'--b','$\hat{\beta}_3^{\frac{\alpha}{2}}$', tx1{:},'LabelOrientation','horizontal')
+legend('off')
+ylabel('Distribucion',tx1{:})
+exportgraphics(figure(4),'beta3_bootstrap.pdf')
 

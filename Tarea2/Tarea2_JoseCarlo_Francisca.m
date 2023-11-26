@@ -79,6 +79,7 @@ for j = 1:size(beta0,1)
 end
 
 
+%% 3. ESTIMACIÓN DE INTERVALOS DE CONFIANZA
 
 
 
